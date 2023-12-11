@@ -3,44 +3,36 @@ package com.example.school_app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.school_app.ui.theme.School_appTheme
+import android.widget.Button
+import android.widget.EditText
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            School_appTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
-            }
+        setContentView(R.layout.activity_main)
+
+        // Find the Login button by its ID
+        val myButton: Button = findViewById(R.id.loginButton)
+        val usernameEditText: EditText = findViewById(R.id.usernameEditText)
+        val passwordEditText: EditText = findViewById(R.id.passwordEditText)
+        myButton.setOnClickListener {
+            val username = usernameEditText.text.toString()
+            val password = passwordEditText.text.toString()
+            handleButtonClick(username, password)
         }
+
+
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    School_appTheme {
-        Greeting("Android")
+    private fun handleButtonClick(username: String, password: String) {        val expectedUsername = "a"
+        // Check if the entered username and password match the expected values
+        if (username == "a" && password == "b") {
+            // If the credentials match, switch to the admin layout
+            setContentView(R.layout.admin_layout)
+        } else {
+            // Handle the case where the credentials do not match (optional)
+            // For example, display an error message or perform other actions
+        }
     }
 }
