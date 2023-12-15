@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <!-- 1. Left logo image and right: 3 text msg -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/logoImageView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/logo"
+            android:layout_alignParentLeft="true"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_toRightOf="@id/logoImageView"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/teacher_name_topview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Teahcer Name" />
+
+            <TextView
+                android:id="@+id/teacher_branch_topview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Branch name" />
+
+            <TextView
+                android:id="@+id/teacher_section_topview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="section name" />
+            <Button
+                android:id="@+id/teacher_submitabsence_btn"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="submit absence"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+    </RelativeLayout>
+    <!-- 2. Spinner (List of Students) -->
+
+    <Spinner
+        android:id="@+id/teacher_listSpinner"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginLeft="120dp" />
+
+    <Button
+        android:id="@+id/teacher_stuent_show"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="Show profile"
+        android:layout_gravity="center_horizontal"/>
+
+    <!-- 4. Text View -->
+    <TextView
+        android:id="@+id/teacher_homework_title"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send the homework"/>
+
+    <!-- 5. Edit Text -->
+    <EditText
+        android:id="@+id/teacher_homework_msg"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/border_background"
+        android:gravity="top"
+        android:hint="TextView 2"/>
+
+    <!-- 6. Text View -->
+    <TextView
+        android:id="@+id/teacher_note_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Send Notes"/>
+
+    <!-- 7. Edit Text -->
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:id="@+id/c"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/border_background"
+        android:gravity="top"
+        android:hint="TextView 2"/>
+
+    <!-- 8. Left checkbox with text view, right checkbox and text view -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/teacher_leftCheckbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"/>
+
+        <TextView
+            android:id="@+id/teacher_leftCheckboxText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_toEndOf="@+id/teacher_leftCheckbox"
+            android:layout_toRightOf="@+id/teacher_leftCheckbox"
+            android:layout_centerVertical="true"
+            android:text="Present" />
+
+        <CheckBox
+            android:id="@+id/teacher_rightCheckbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"/>
+
+        <TextView
+            android:id="@+id/teacher_rightCheckboxText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toStartOf="@+id/teacher_rightCheckbox"
+            android:text="Not present" />
+    </RelativeLayout>
+
+
+
+
+    <!-- 9. Button -->
+
+    <!-- 10. Left Button and Right Button -->
+
+    <Button
+        android:id="@+id/teacher_send_btn"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Send"
+        android:layout_gravity="center_horizontal"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="bottom">
+
+        <Button
+            android:id="@+id/teacher_backButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Back"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/teacher_logoutButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Logout"/>
+    </LinearLayout>
+
+</LinearLayout>
