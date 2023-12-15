@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <!-- Part 1: Logo and Information -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Logo -->
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/logo"
+            android:layout_marginEnd="25dp"/>
+
+        <!-- Information (Name, Branch, Section, Supervisor) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/student_name_topview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Student Name"/>
+
+            <TextView
+                android:id="@+id/student_branch_topview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Branch"/>
+
+            <TextView
+                android:id="@+id/student_section_topview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Section"/>
+
+            <TextView
+                android:id="@+id/student_supervisor_topview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Supervisor"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Part 2: Green Background TextView -->
+    <TextView
+        android:id="@+id/student_nextappointment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="#00FF00"
+        android:textColor="#000000"
+        android:padding="8dp"
+        android:text="Next appointment"/>
+
+    <!-- Part 3: Button -->
+    <Button
+        android:id="@+id/student_showgrade"
+        android:layout_width="150dp"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Show Grade"/>
+
+    <!-- Part 4-7: Text Views -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/student_homework_title"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:text="Next Homeworks"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="132dp"
+        android:id="@+id/student_howmework_msg"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/border_background"
+        android:text="TextView 2"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/student_note_title"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:text="Notes"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="132dp"
+        android:id="@+id/student_note_msg"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/border_background"
+        android:text="TextView 4"/>
+
+    <!-- Part 8: Buttons for Back and Logout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/student_backButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Back"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/student_logoutButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Logout"/>
+    </LinearLayout>
+
+</LinearLayout>
