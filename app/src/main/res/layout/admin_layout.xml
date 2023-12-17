@@ -68,17 +68,28 @@
         android:layout_marginTop="16dp"
         android:visibility="visible"/>
 
-    <!-- Password -->
+    <!-- sexe -->
     <EditText
-        android:id="@+id/editTextPassword"
+        android:id="@+id/editTextSexe"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:hint="Password"
+        android:hint="Sexe"
         app:layout_constraintTop_toBottomOf="@id/editTextSection"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
         android:visibility="visible"/>
+
+    <Button
+        android:id="@+id/addnewuserBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Button Text"
+        app:layout_constraintTop_toBottomOf="@id/editTextSexe"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
