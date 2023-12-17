@@ -12,20 +12,32 @@ import android.widget.TextView
 import android.widget.Toast
 import android.util.Log
 import android.content.Intent
+import com.google.firebase.storage.FirebaseStorage
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import okhttp3.ResponseBody
 import retrofit2.converter.gson.GsonConverterFactory
+import com.google.firebase.database.FirebaseDatabase
+
 
 class MainActivity : ComponentActivity() {
-    private val URL = "http://192.168.1.98:3000"
+        data class User(
+        val newname: String,
+        val newbirthday: String,
+        val newbranch: String,
+        val newsection: String,
+        val newsexe: String,
+        val newtype: String
+    )
+
     private lateinit var receivedMessageTextView: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // Find the Login button by its ID
+        ////////////////////////////////////////////////////////////////////////////////////////////// Find the Login button by its ID
         val mainloginButton: Button = findViewById(R.id.main_login_Button)
         val usernameEditText: EditText = findViewById(R.id.usernameEditText)
         val passwordEditText: EditText = findViewById(R.id.passwordEditText)
@@ -57,13 +69,12 @@ class MainActivity : ComponentActivity() {
     private fun checkTeacherCredentials(username: String, password: String): Boolean {
         return username.startsWith("t_") && password.isEmpty()
     }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////// switch to other layout
+    //////////////////////////////////////////////////////////////////////////////////////////////// switch to user layout
    ////////////////   If ADMIN
     private fun switchToAdminLayout(username: String) {
         setContentView(R.layout.admin_layout)
 
-        // Find the Spinner by ID : to add new user
+        // Find the user type Spinner by ID : to add new user
         val typeSpinner: Spinner = findViewById(R.id.typeSpinner)
         // Initialize the spinner with user types
         ArrayAdapter.createFromResource(
@@ -76,71 +87,109 @@ class MainActivity : ComponentActivity() {
         }
 
         // Set up listener for spinner item selection
+        var newtype: String = ""
         typeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 // Handle the selection and show/hide relevant EditText fields
-                handleTypeSelection(position)
+                newtype = handleTypeSelection(position)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
                 // Do nothing here
             }
         }
-    }
-    private fun handleTypeSelection(position: Int) {
+        ///// add new user
+        ///////////////////////////////////////////////////////////////////////////////////// FIREBASE TEST
 
+        val addnewuserBtn: Button = findViewById(R.id.addnewuserBtn)
+        setVisibilityForEditTextFields(View.VISIBLE)
         val editTextName: EditText = findViewById(R.id.editTextName)
         val editTextBirthday: EditText = findViewById(R.id.editTextBirthday)
         val editTextBranch: EditText = findViewById(R.id.editTextBranch)
         val editTextSection: EditText = findViewById(R.id.editTextSection)
-        val editTextPassword: EditText = findViewById(R.id.editTextPassword)
-
+        val editTextSexe: EditText = findViewById(R.id.editTextSexe)
         // Reset visibility for all EditText fields
-        setVisibilityForEditTextFields(View.VISIBLE)
 
-        when (position) {
-            0 -> {  // Student
+        when (newtype) {
+            "Student" -> {  // Student
 
             }
-            1 -> {  // Teacher
+            "Teacher" -> {  // Teacher
                 // Hide supervisor fields
 
             }
-            2 -> {  // Supervisor
+            "Supervisor" -> {  // Supervisor
                 // Hide section field
                 editTextSection.visibility = View.GONE
             }
-            3 -> {  // Director
+            "Director"-> {  // Director
                 // Hide section and supervisor fields
                 editTextSection.visibility = View.GONE
                 editTextBranch.visibility = View.GONE
             }
-            4 -> {  // Admin
+            "Admin" -> {  // Admin
                 // Hide section and supervisor fields
                 editTextSection.visibility = View.GONE
                 editTextBirthday.visibility = View.GONE
             }
         }
+
+        addnewuserBtn.setOnClickListener {
+
+            // Get values from EditText fields
+            val newname = editTextName.text.toString()
+            val newbirthday = editTextBirthday.text.toString()
+            val newbranch = editTextBranch.text.toString()
+            val newsection = editTextSection.text.toString()
+            val newsexe = editTextSexe.text.toString()
+
+            //
+            // Validate that the fields are not empty (you can add more validation as needed)
+            //if (id.isNotEmpty() && password.isNotEmpty() && status.isNotEmpty() && username.isNotEmpty()) {
+                // Create a User object with the retrieved data
+             val user = User(newname, newbirthday, newbranch, newsection, newsexe, newtype)
+            val customUserKey = "your_custom_key_2"
+            // Reference to the Firebase database
+            val database = FirebaseDatabase.getInstance("https://bdaass0-default-rtdb.europe-west1.firebasedatabase.app/")
+                .getReference("users")
+                // Set the user data under the generated key
+                database.child(customUserKey).setValue(user)
+                .addOnSuccessListener {
+                   showToast("User added successfully")
+                  }
+               .addOnFailureListener { e ->
+                  showToast("Failed to add user: ${e.message}")
+                }
+            }
+        }
+
+
+    private fun handleTypeSelection(position: Int): String {
+        return when (position) {
+            0 -> "student"
+            1 -> "teacher"
+            2 -> "supervisor"
+            3 -> "director"
+            4 -> "admin"
+            else -> "unknown" // Handle other cases if needed
+        }
     }
+
     private fun setVisibilityForEditTextFields(visibility: Int) {
         val editTextName: EditText = findViewById(R.id.editTextName)
         val editTextBirthday: EditText = findViewById(R.id.editTextBirthday)
         val editTextBranch: EditText = findViewById(R.id.editTextBranch)
         val editTextSection: EditText = findViewById(R.id.editTextSection)
-        val editTextPassword: EditText = findViewById(R.id.editTextPassword)
         editTextName.visibility = visibility
         editTextBirthday.visibility = visibility
         editTextBranch.visibility = visibility
         editTextSection.visibility = visibility
-        editTextPassword.visibility = visibility
     }
     ////////////////   If Student
     private fun switchToStudentLayout(username: String) {
         setContentView(R.layout.student_layout)
         // fetch new info from server
         receivedMessageTextView = findViewById(R.id.student_howmework_msg)
-        fetchMessagesFromServer()
-
         val logoutButton: Button = findViewById(R.id.student_logoutButton)
         // Logout button
         logoutButton.setOnClickListener {
@@ -154,40 +203,7 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
         }
     }
-    private fun fetchMessagesFromServer() {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
 
-        val service = retrofit.create(ApiService::class.java)
-
-        // Fetch messages
-        val getMessagesCall = service.getMessages()
-        getMessagesCall.enqueue(object : Callback<GetMessagesResponse> {
-            override fun onResponse(call: Call<GetMessagesResponse>, response: Response<GetMessagesResponse>) {
-                if (response.isSuccessful) {
-                    val getMessagesResponse = response.body()
-                    getMessagesResponse?.let {
-                        val message = it.message
-                        val messageText = message.content
-                        showToast(messageText)
-                        receivedMessageTextView.text = messageText
-                    }
-                } else {
-                    showToast("Failed to fetch messages. Error code: ${response.code()}")
-                }
-
-                // Log the response body for debugging
-                Log.d("Response", "Response Body: ${response.body()}")
-            }
-
-            override fun onFailure(call: Call<GetMessagesResponse>, t: Throwable) {
-                showToast("Error: ${t.message}")
-            }
-        })
-
-    }
 
     ////////////////   If Teacher
     private fun switchToTeacherLayout(username: String) {
@@ -195,17 +211,6 @@ class MainActivity : ComponentActivity() {
 
         val homework_msg: EditText = findViewById(R.id.teacher_homework_msg)
         val sendButton: Button = findViewById(R.id.teacher_send_btn)
-
-
-        // Set OnClickListener for the Send button
-        sendButton.setOnClickListener {
-            val message = homework_msg.text.toString()
-            if (message.isNotEmpty()) {
-                sendHomeworkMessage(username, message)
-            } else {
-                showToast("Please enter a message")
-            }
-        }
 
         // Set OnClickListener for the Logout button
         val logoutButton: Button = findViewById(R.id.teacher_logoutButton)
@@ -217,31 +222,6 @@ class MainActivity : ComponentActivity() {
             // Start the MainActivity
             startActivity(intent)
         }
-    }
-    private fun sendHomeworkMessage(username: String, message: String) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val service = retrofit.create(ApiService::class.java)
-
-        val message = Message(1, username, message, System.currentTimeMillis())
-        // Send the message
-        val sendMessageCall = service.sendMessage(message)
-        sendMessageCall.enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (response.isSuccessful) {
-                    showToast("Message sent successfully")
-                } else {
-                    showToast("Failed to send message")
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                showToast("Error: ${t.message}")
-            }
-        })
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
