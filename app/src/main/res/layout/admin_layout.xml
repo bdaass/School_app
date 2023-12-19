@@ -68,25 +68,60 @@
         android:layout_marginTop="16dp"
         android:visibility="visible"/>
 
-    <!-- sexe -->
+    <!-- phone -->
     <EditText
-        android:id="@+id/editTextSexe"
+        android:id="@+id/editTextPhone"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:hint="Sexe"
+        android:hint="Phone number"
         app:layout_constraintTop_toBottomOf="@id/editTextSection"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
         android:visibility="visible"/>
+    <!-- sexe -->
+    <Spinner
+        android:id="@+id/spinnerGender"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginTop="16dp"
+        android:hint="Sexe"
+        app:layout_constraintTop_toBottomOf="@id/editTextPhone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="visible"/>
+
+
+
 
     <Button
         android:id="@+id/addnewuserBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your Button Text"
-        app:layout_constraintTop_toBottomOf="@id/editTextSexe"
+        android:text="Add new user"
+        app:layout_constraintTop_toBottomOf="@id/spinnerGender"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/deleteuserBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete user"
+        app:layout_constraintTop_toBottomOf="@id/addnewuserBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/adminlogoutBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        app:layout_constraintTop_toBottomOf="@id/deleteuserBtn"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
