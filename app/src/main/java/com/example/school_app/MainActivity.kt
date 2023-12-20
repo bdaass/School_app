@@ -49,9 +49,10 @@ class MainActivity : ComponentActivity() {
         val password: String,
         val phone: Int,
     )
-
     private var newStatus: String = ""
     private var selectedGender: String = ""
+    private val database = FirebaseDatabase.getInstance("https://bdaass0-default-rtdb.europe-west1.firebasedatabase.app/")
+
     private lateinit var receivedMessageTextView: TextView
     override fun onCreate(savedInstanceState: Bundle?) { ////////////////////////////////////////////  This is the first thing we do : main layout
         super.onCreate(savedInstanceState)
@@ -60,48 +61,94 @@ class MainActivity : ComponentActivity() {
         val mainloginButton: Button = findViewById(R.id.main_login_Button)
         val usernameEditText: EditText = findViewById(R.id.usernameEditText)
         val passwordEditText: EditText = findViewById(R.id.passwordEditText)
+        // Find the user type Spinner by ID : to add new user
+        val typeSpinner: Spinner = findViewById(R.id.mainstatuscheck)
+        // Initialize the spinner with user types
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.user_types,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            typeSpinner.adapter = adapter
+        }
+        // Set up listener for spinner item selection
+        typeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                newStatus = handleTypeSelection(position)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
+        }
         mainloginButton.setOnClickListener {
             val username = usernameEditText.text.toString()
             val password = passwordEditText.text.toString()
-            handleloginButtonClick(username, password)
+            handleloginButtonClick(username, password, newStatus)
         }
     }
-
-    private fun handleloginButtonClick(username: String, password: String) {
-        val isAdmin = checkAdminCredentials(username, password)
-        val isStudent = checkStudentCredentials(username, password)
-        val isTeacher = checkTeacherCredentials(username, password)
-        val isSupervisor = checkSupervisorCredentials(username, password)
-        val isDirector = checkDirectorCredentials(username, password)
-        if (isAdmin) {
-            switchToAdminLayout(username)
-        } else if (isStudent) {
-            switchToStudentLayout(username)
-        } else if (isTeacher) {
-            switchToTeacherLayout(username)
-        } else if (isSupervisor) {
-            switchToSupervisorLayout(username)
-        } else if (isDirector) {
-            switchToDirectorLayout(username)
+    private fun handleloginButtonClick(username: String, password: String, status: String) {
+        val table = database.getReference(status)
+        if (status == "admin") {
+            checkifAdmin(table, username, password) { isAdmin ->
+                if (isAdmin) {
+                    switchToAdminLayout(username)
+                }
+            }
+        }
+        else if (status == "student") {
+            checkifStudent(table, username, password) { isStudent ->
+                if (isStudent) {
+                    switchToStudentLayout(username)
+                }
+            }
+        }
+        else if  (status == "teacher") {
+            checkifTeacher(table, username, password) { isTeacher ->
+                if (isTeacher) {
+                    switchToTeacherLayout(username)
+                }
+            }
+        }
+        else if  (status == "supervisor") {
+            checkifSupervisor(table, username, password) { isSupervisor ->
+                if (isSupervisor) {
+                    switchToSupervisorLayout(username)
+                }
+            }
+        }
+        else if  (status == "director") {
+            checkifDirector(table, username, password) { isDirector ->
+                if (isDirector) {
+                    switchToDirectorLayout(username)
+                }
+            }
         }
     }
-
     //////////////////////  check username types
-    private fun checkAdminCredentials(username: String, password: String): Boolean {
-        return username.startsWith("a_") && password.isEmpty()
+    private fun checkifAdmin(table : DatabaseReference, username: String, password: String, callback: (Boolean) -> Unit) {
+        checkIfNameExiststoLOGIN(table, username, password) { isAdmin ->
+            callback(isAdmin)
+        }
     }
-    private fun checkStudentCredentials(username: String, password: String): Boolean {
-        return username.startsWith("s_") && password.isEmpty()
+    private fun checkifStudent(table : DatabaseReference, username: String, password: String, callback: (Boolean) -> Unit) {
+        checkIfNameExiststoLOGIN(table, username, password) { isStudent ->
+            callback(isStudent)
+        }
     }
-    private fun checkTeacherCredentials(username: String, password: String): Boolean {
-        return username.startsWith("t_") && password.isEmpty()
+    private fun checkifTeacher(table : DatabaseReference, username: String, password: String, callback: (Boolean) -> Unit) {
+        checkIfNameExiststoLOGIN(table, username, password) { isTeacher ->
+            callback(isTeacher)
+        }
     }
-    private fun checkSupervisorCredentials(username: String, password: String): Boolean {
-        return username.startsWith("su_") && password.isEmpty()
+    private fun checkifSupervisor(table : DatabaseReference, username: String, password: String, callback: (Boolean) -> Unit) {
+        checkIfNameExiststoLOGIN(table, username, password) { isSupervisor ->
+            callback(isSupervisor)
+        }
     }
-
-    private fun checkDirectorCredentials(username: String, password: String): Boolean {
-        return username.startsWith("d_") && password.isEmpty()
+    private fun checkifDirector(table : DatabaseReference, username: String, password: String, callback: (Boolean) -> Unit) {
+        checkIfNameExiststoLOGIN(table, username, password) { isDirector ->
+            callback(isDirector)
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////// switch to user layout
@@ -137,9 +184,10 @@ class MainActivity : ComponentActivity() {
     ////////////////   If ADMIN
     private fun switchToAdminLayout(username: String) {
         setContentView(R.layout.admin_layout)
-
         // Find the user type Spinner by ID : to add new user
         val typeSpinner: Spinner = findViewById(R.id.typeSpinner)
+        showToast("Get the admin layout")
+
         // Initialize the spinner with user types
         ArrayAdapter.createFromResource(
             this,
@@ -166,6 +214,7 @@ class MainActivity : ComponentActivity() {
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
         }
+
         ///////////////////////////////////////////////////////////////////////////////////////////// add and delete  users
         // Get entry Data
         val editTextName: EditText = findViewById(R.id.editTextName)
@@ -198,10 +247,8 @@ class MainActivity : ComponentActivity() {
             val newbranch = editTextBranch.text.toString()
             val newsection = editTextSection.text.toString()
             val newgender = selectedGender
-            // connnect to the database
-            val database = FirebaseDatabase.getInstance("https://bdaass0-default-rtdb.europe-west1.firebasedatabase.app/")
             // check if newname already exist in the newstatus table
-            checkIfNameExists(database, newname, newStatus) { nameExists ->
+            checkIfNameExiststoADD(database, newname, newStatus) { nameExists ->
                 if (nameExists) {
                     showToast("Name already exists!")
                 } else {
@@ -247,7 +294,6 @@ class MainActivity : ComponentActivity() {
             val newgender = selectedGender
             // connnect to the database
             // check if newname already exist in the newstatus table
-            val database = FirebaseDatabase.getInstance("https://bdaass0-default-rtdb.europe-west1.firebasedatabase.app/")
             val databaseRef = when (newStatus) {
                 "student" -> database.getReference("student")
                 "teacher" -> database.getReference("teacher")
@@ -256,7 +302,7 @@ class MainActivity : ComponentActivity() {
                 "admin" -> database.getReference("admin")
                 else -> database.getReference("student")
             }
-            checkIfNameExists(database, newname, newStatus) { nameExists ->
+            checkIfNameExiststoADD(database, newname, newStatus) { nameExists ->
                 if (nameExists) {
                     removeItemFromTable(databaseRef, newname)
                     showToast("Deleted")
@@ -293,6 +339,8 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
         }
     }
+    // go to grade_layout
+
     ////////////////   If Teacher
     private fun switchToTeacherLayout(username: String) {
         setContentView(R.layout.teacher_layout)
@@ -386,7 +434,7 @@ class MainActivity : ComponentActivity() {
         }
     }
     ///// add new user - check if already exists
-    private fun checkIfNameExists(database: FirebaseDatabase, newname: String, newstatus: String, callback: (Boolean) -> Unit) {
+    private fun checkIfNameExiststoADD(database: FirebaseDatabase, newname: String, newstatus: String, callback: (Boolean) -> Unit) {
         // Specify the table based on newstatus
         val tableRef = when (newstatus) {
             "teacher" -> database.getReference("teacher")
@@ -411,6 +459,38 @@ class MainActivity : ComponentActivity() {
             })
         }
     }
+    private fun checkIfNameExiststoLOGIN(table: DatabaseReference, username: String, password: String, callback: (Boolean) -> Unit) {
+        val query = table.orderByChild("name").equalTo(username)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // Check if the username exists
+                if (dataSnapshot.exists()) {
+                    // Username exists, now check if the password matches
+                    val userSnapshot = dataSnapshot.children.first()
+                    val storedPassword = userSnapshot.child("password").getValue(String::class.java)
+
+                    if (storedPassword == password) {
+                        // Username and password match
+                        callback(true)
+                    } else {
+                        val errorText: TextView = findViewById(R.id.errortext)
+                        errorText.text = "Wrong Password"
+                        callback(false)
+                    }
+                } else {
+                    // Username doesn't exist
+                    val errorText: TextView = findViewById(R.id.errortext)
+                    errorText.text = "Wrong username"
+                    callback(false)
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Handle database error
+                callback(false)
+            }
+        })
+    }
     fun removeItemFromTable(databaseRef: DatabaseReference, newname: String) {
         databaseRef.orderByChild("name").equalTo(newname)
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -424,3 +504,5 @@ class MainActivity : ComponentActivity() {
             })
     }
 }
+
+
