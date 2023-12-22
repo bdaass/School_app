@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import android.widget.Button
 import android.widget.EditText
 import android.view.View
+import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
@@ -17,10 +18,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import android.util.Log
-
-
-
 class MainActivity : ComponentActivity() {
+    // Variables to add new users
     data class student_Users(
         val name: String,
         val birthday: String,
@@ -51,9 +50,15 @@ class MainActivity : ComponentActivity() {
     )
     private var newStatus: String = ""
     private var selectedGender: String = ""
-    private val database = FirebaseDatabase.getInstance("https://bdaass0-default-rtdb.europe-west1.firebasedatabase.app/")
 
-    private lateinit var receivedMessageTextView: TextView
+    // Variables to send agenda
+    data class AgendaItem(
+        val homeworkMsg: String = "",
+        val noteMsg: String = ""
+    )
+    var teacherbranch: String? = null
+    var teachersection: String? = null
+    private val database = FirebaseDatabase.getInstance("https://bdaass0-default-rtdb.europe-west1.firebasedatabase.app/")
     override fun onCreate(savedInstanceState: Bundle?) { ////////////////////////////////////////////  This is the first thing we do : main layout
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -150,7 +155,6 @@ class MainActivity : ComponentActivity() {
             callback(isDirector)
         }
     }
-
     //////////////////////////////////////////////////////////////////////////////////////////////// switch to user layout
     ////////////////   If Supervisor
     private fun switchToSupervisorLayout(username: String) {
@@ -325,9 +329,71 @@ class MainActivity : ComponentActivity() {
     private fun switchToStudentLayout(username: String) {
         setContentView(R.layout.student_layout)
         // fetch new info from server
-        receivedMessageTextView = findViewById(R.id.student_howmework_msg)
-        val logoutButton: Button = findViewById(R.id.student_logoutButton)
+        val student_howmework_msg : TextView = findViewById(R.id.studenthowmeworkmsg)
+        val student_note_msg : TextView = findViewById(R.id.studentnotemsg)
+        val agendaRef: DatabaseReference = database.getReference("agenda")
+
+        // Step 1: Get the ID of the student from the student table
+        val studentTableRef = database.getReference("student")
+        val query = studentTableRef.orderByChild("name").equalTo(username)
+
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (snapshot in dataSnapshot.children) {
+                    val studentID = snapshot.key
+
+                    // Step 2: Get the info from the agenda table using the student ID
+                    if (studentID != null) {
+                        val agendaTableRef = database.getReference("agenda").child(studentID)
+
+                        agendaTableRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(agendaSnapshot: DataSnapshot) {
+                                // Check if the agenda data exists for the student
+                                if (agendaSnapshot.exists()) {
+                                    // Retrieve agenda data
+                                    val agendaItem = agendaSnapshot.getValue(AgendaItem::class.java)
+
+                                    // Update TextViews with agenda data
+                                    student_howmework_msg.text = agendaItem?.homeworkMsg
+                                    student_note_msg.text = agendaItem?.noteMsg
+                                } else {
+                                    // Handle the case where no agenda data is found for the student
+                                    // You might want to set some default values or display a message
+                                }
+                            }
+
+                            override fun onCancelled(agendaDatabaseError: DatabaseError) {
+                                // Handle errors related to the agenda table
+                            }
+                        })
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Handle errors related to the student table
+            }
+        })
+
+        // Set the username in the EditText
+        val studentName: TextView = findViewById(R.id.student_name_topview)
+        studentName.text =username
+        // show grade button
+        val buttonGoToGrade: Button = findViewById(R.id.student_showgrade)
+        buttonGoToGrade.setOnClickListener {
+
+            // Call a function to switch to the grade layout with the username
+            switchToGradeLayout(username)
+        }
+
+
+
+
+
+
+
         // Logout button
+        val logoutButton: Button = findViewById(R.id.student_logoutButton)
         logoutButton.setOnClickListener {
             // Create an Intent to start the MainActivity
             val intent = Intent(this, MainActivity::class.java)
@@ -340,25 +406,141 @@ class MainActivity : ComponentActivity() {
         }
     }
     // go to grade_layout
+    private fun switchToGradeLayout(username: String) {
+        setContentView(R.layout.grade_layout)
+        // fetch new info from server
+        val gradeRef: DatabaseReference = database.getReference("grade")
+        val section1textView: TextView = findViewById(R.id.section1textView)
+        val section2textView: TextView = findViewById(R.id.section2textView)
+        gradeRef.orderByChild("name").equalTo(username)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        for (userSnapshot in dataSnapshot.children) {
+                            val grade1: String? = userSnapshot.child("grade1").getValue(String::class.java)
+                            showToast(grade1.toString())
+                            // Split the string into a list of strings
+                            val stdGrade: List<String> = grade1.toString().split(",")
+                            // Convert the list of strings into a list of numbers
+                            val studentGrade: List<Int> = stdGrade.map { it.toInt() }
+                        }
+                    }
+                }
+                override fun onCancelled(databaseError: DatabaseError) {
+                    // Handle errors
+                    showToast("Error: ${databaseError.message}")
+                }
+            })
+        // Logout button
+        val logoutButton: Button = findViewById(R.id.grade_logoutButton)
+        logoutButton.setOnClickListener {
+            switchToStudentLayout(username)
+        }
 
+        }
     ////////////////   If Teacher
     private fun switchToTeacherLayout(username: String) {
         setContentView(R.layout.teacher_layout)
+        //////////////////////////////////////////////////////////////////////////////////////////// Fill top view
+        // Find the RelativeLayout
+        val topView: RelativeLayout = findViewById(R.id.topview)
+        val teacherNameTopView: TextView = topView.findViewById(R.id.teachernametopview)
+        teacherNameTopView.text = username
+        val teacherBranchTopView: TextView = topView.findViewById(R.id.teacherbranchtopview)
+        val teacherSectionTopView: TextView = topView.findViewById(R.id.teachersectiontopview)
+        // get the teacher ID and fill the top view data
+        val teacherRef: DatabaseReference = database.getReference("teacher")
+        teacherRef.orderByChild("name").equalTo(username).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        for (userSnapshot in dataSnapshot.children) {
+                            val branch: String? = userSnapshot.child("branch").getValue(String::class.java)
+                            teacherBranchTopView.text = branch
+                            val section: String? = userSnapshot.child("section").getValue(String::class.java)
+                            teacherSectionTopView.text = section
+                            //////////////////////////////////////////////////////////////////////////////////////////// set the spinner values
+                            // Get the list of students in the same section
+                            val studentsRef: DatabaseReference = database.getReference("student")
+                            studentsRef.orderByChild("section").equalTo(section).addListenerForSingleValueEvent(object : ValueEventListener {
+                                    override fun onDataChange(studentsSnapshot: DataSnapshot) {
+                                        if (studentsSnapshot.exists()) {
+                                            val studentList = mutableListOf<String>()
+                                            for (studentSnapshot in studentsSnapshot.children) {
+                                                val studentUsername =
+                                                    studentSnapshot.child("name").getValue(String::class.java)
+                                                if (studentUsername != null) {
+                                                    studentList.add(studentUsername)
+                                                }
+                                            }
+                                            // 2. Set the spinner list entries
+                                            val spinnerStudents: Spinner = findViewById(R.id.teacherstudentlistSpinner)
+                                            val adapter = ArrayAdapter(
+                                                applicationContext,
+                                                android.R.layout.simple_spinner_item,
+                                                studentList
+                                            )
+                                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                                            spinnerStudents.adapter = adapter
+                                        } else {
+                                            showToast("No students found in the same section.")
+                                        }
 
-        val homework_msg: EditText = findViewById(R.id.teacher_homework_msg)
-        val sendButton: Button = findViewById(R.id.teacher_send_btn)
+                                    }
 
-        // Set OnClickListener for the Logout button
+                                    override fun onCancelled(databaseError: DatabaseError) {
+                                        showToast("Error getting students: ${databaseError.message}")
+                                    }
+                                })
+
+                        }
+                    }
+                }
+                override fun onCancelled(databaseError: DatabaseError) {
+                    // Handle errors
+                    showToast("Error: ${databaseError.message}")
+                }
+            })
+
+        ///////////////////////////////////////////////////////////////////////////////////////////// send agenda
+        val homeworkmsg: EditText = findViewById(R.id.teacherhomeworkmsg)
+        val notemsg: EditText = findViewById(R.id.teachernotemsg)
+
+        val sendButton: Button = findViewById(R.id.teachersendbtn)
+        sendButton.setOnClickListener {
+            val homework_msg = homeworkmsg.text
+            val note_msg = notemsg.text
+            // Write to database
+            val spinnerStudents: Spinner = findViewById(R.id.teacherstudentlistSpinner)
+            val studentname = spinnerStudents.selectedItem.toString()
+            val studenttableRef = database.getReference("student")    // search its id
+            val query = studenttableRef.orderByChild("name").equalTo(studentname)
+
+            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    for (snapshot in dataSnapshot.children) {
+                        val studentID = snapshot.key
+                        // Now you have the student ID, and you can proceed with your agenda logic
+                        val agendaItem = AgendaItem(homework_msg.toString(), note_msg.toString())
+                        val tableRef = database.getReference("agenda").child(studentID!!)
+                        tableRef.setValue(agendaItem)
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    // Handle errors here
+                }
+            })
+
+        }
+        ///////////////////////////////////////////////////////////////////////////////////////////// log out
         val logoutButton: Button = findViewById(R.id.teacher_logoutButton)
         logoutButton.setOnClickListener {
-            // Create an Intent to start the MainActivity
             val intent = Intent(this, MainActivity::class.java)
-            // Clear the back stack, so pressing back won't return to the current activity
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            // Start the MainActivity
             startActivity(intent)
         }
     }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////   TOAST msg
     private fun showToast(message: String) {
         val toast = Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT)
@@ -503,6 +685,24 @@ class MainActivity : ComponentActivity() {
                 }
             })
     }
+    /*
+    private fun displayData() {
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // Assuming a simple text value is stored in the database
+                val data = snapshot.getValue(String::class.java)
+
+                // Display the data in the TextView
+                textView.text = data ?: "No data available"
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error
+            }
+        })
+    }
+
+     */
 }
 
 

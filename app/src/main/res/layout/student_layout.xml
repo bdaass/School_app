@@ -53,7 +53,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Supervisor"/>
+
         </LinearLayout>
+
     </LinearLayout>
 
     <!-- Part 2: Green Background TextView -->
@@ -87,9 +89,9 @@
         android:text="Next Homeworks"/>
 
     <TextView
+        android:id="@+id/studenthowmeworkmsg"
         android:layout_width="match_parent"
         android:layout_height="132dp"
-        android:id="@+id/student_howmework_msg"
         android:layout_marginTop="8dp"
         android:background="@drawable/border_background"
         android:text="TextView 2"/>
@@ -103,9 +105,9 @@
         android:text="Notes"/>
 
     <TextView
+        android:id="@+id/studentnotemsg"
         android:layout_width="match_parent"
         android:layout_height="132dp"
-        android:id="@+id/student_note_msg"
         android:layout_marginTop="8dp"
         android:background="@drawable/border_background"
         android:text="TextView 4"/>
