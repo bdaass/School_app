@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="branches_with_all">
+        <item>all branches</item>
+        <item>Elbireh</item>
+        <item>Kherbet Daoud</item>
+        <item>ElKouwachera</item>
+        <item>Eldaousseh</item>
+        <item>Eldaousseh-Begdadi</item>
+        <item>ElSindyani</item>
+        <item>Wadi khaled</item>
+        <item>Elsahel</item>
+        <item>Freidis</item>
+        <item>KherbetChar</item>
+    </string-array>
+</resources>

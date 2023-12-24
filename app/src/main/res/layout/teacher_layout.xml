@@ -10,7 +10,7 @@
     <!-- 1. Left logo image and right: 3 text msg -->
     <RelativeLayout
         android:layout_width="match_parent"
-
+        android:id="@+id/topview"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -28,19 +28,19 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/teacher_name_topview"
+                android:id="@+id/teachernametopview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Teahcer Name" />
+                android:text="Teacher Name" />
 
             <TextView
-                android:id="@+id/teacher_branch_topview"
+                android:id="@+id/teacherbranchtopview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Branch name" />
 
             <TextView
-                android:id="@+id/teacher_section_topview"
+                android:id="@+id/teachersectiontopview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="section name" />
@@ -55,20 +55,20 @@
     <!-- 2. Spinner (List of Students) -->
 
     <Spinner
-        android:id="@+id/teacher_listSpinner"
+        android:id="@+id/teacherstudentlistSpinner"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:padding="16dp"
         android:layout_marginLeft="120dp" />
 
     <Button
-        android:id="@+id/teacher_stuent_show"
+        android:id="@+id/teacher_stuent_show_profile"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:text="Show profile"
         android:layout_gravity="center_horizontal"/>
 
-    <!-- 4. Text View -->
+    <!-- 4. teacher_homework_title -->
     <TextView
         android:id="@+id/teacher_homework_title"
         android:textStyle="bold"
@@ -76,9 +76,9 @@
         android:layout_height="wrap_content"
         android:text="Send the homework"/>
 
-    <!-- 5. Edit Text -->
+    <!-- 5. teacher_homework_msg -->
     <EditText
-        android:id="@+id/teacher_homework_msg"
+        android:id="@+id/teacherhomeworkmsg"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_marginTop="8dp"
@@ -86,7 +86,7 @@
         android:gravity="top"
         android:hint="TextView 2"/>
 
-    <!-- 6. Text View -->
+    <!-- 6. teacher_note_title -->
     <TextView
         android:id="@+id/teacher_note_title"
         android:layout_width="match_parent"
@@ -94,17 +94,23 @@
         android:textStyle="bold"
         android:text="Send Notes"/>
 
-    <!-- 7. Edit Text -->
+    <!-- 7. Edit Text  teacher note-->
     <EditText
+        android:id="@+id/teachernotemsg"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:id="@+id/c"
         android:layout_marginTop="8dp"
         android:background="@drawable/border_background"
         android:gravity="top"
         android:hint="TextView 2"/>
 
     <!-- 8. Left checkbox with text view, right checkbox and text view -->
+
+
+    <!-- 9. Button -->
+
+    <!-- 10. Left Button and Right Button -->
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -113,28 +119,28 @@
             android:id="@+id/teacher_leftCheckbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"/>
+            android:layout_alignParentLeft="true"
+            android:padding="16dp" />
 
         <TextView
             android:id="@+id/teacher_leftCheckboxText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:layout_toEndOf="@+id/teacher_leftCheckbox"
             android:layout_toRightOf="@+id/teacher_leftCheckbox"
-            android:layout_centerVertical="true"
             android:text="Present" />
 
         <CheckBox
             android:id="@+id/teacher_rightCheckbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:padding="16dp" />
 
         <TextView
             android:id="@+id/teacher_rightCheckboxText"
@@ -147,15 +153,8 @@
             android:text="Not present" />
     </RelativeLayout>
 
-
-
-
-    <!-- 9. Button -->
-
-    <!-- 10. Left Button and Right Button -->
-
     <Button
-        android:id="@+id/teacher_send_btn"
+        android:id="@+id/teachersendbtn"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:padding="16dp"
