@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Name -->
+
+    <!-- Birthday -->
+
+    <Spinner
+        android:id="@+id/typeSpinner"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="108dp"
+        android:entries="@array/user_types"
+        android:padding="0dp"
+        app:layout_constraintEnd_toEndOf="@+id/editTextName"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:hint="Name"
+        android:padding="16dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/typeSpinner" />
+
+    <!-- Branch -->
+    <EditText
+        android:id="@+id/editTextBirthday"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:hint="Birthday"
+        android:padding="16dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextName" />
+
+    <!-- Section -->
+
+    <Spinner
+        android:id="@+id/spinnerBranch"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="16dp"
+        android:entries="@array/branches"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextBirthday"/>
+
+
+    <!-- phone -->
+
+    <!-- sexe -->
+
+
+    <EditText
+        android:id="@+id/editTextSection"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:hint="Section"
+        android:padding="16dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spinnerBranch" />
+
+    <EditText
+        android:id="@+id/editTextPhone"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:hint="Phone number"
+        android:padding="16dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextSection" />
+
+    <Spinner
+        android:id="@+id/spinnerGender"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:hint="Sexe"
+        android:padding="16dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextPhone" />
+
+    <Button
+        android:id="@+id/addnewuserBtn"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:text="Add"
+        android:textStyle="bold"
+        android:background="#00BCD4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spinnerGender" />
+
+    <Button
+        android:id="@+id/deleteuserBtn"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:background="#FF0000"
+        android:text="Delete"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/addnewuserBtn"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerGender" />
+
+    <Button
+        android:id="@+id/adminbackBtn"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="10dp"
+        android:text="Back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/deleteuserBtn"
+        app:layout_constraintVertical_bias="0.819" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

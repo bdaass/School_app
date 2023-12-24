@@ -11,15 +11,30 @@ import android.widget.ArrayAdapter
 import android.widget.AdapterView
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.RadioGroup
+import android.widget.RadioButton
+import android.widget.ScrollView
+import android.widget.LinearLayout
+import android.widget.TableLayout
 import android.content.Intent
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import android.util.Log
+import android.view.ViewGroup
+import androidx.cardview.widget.CardView
+import android.widget.TableRow
+import android.graphics.Color
+import android.widget.HorizontalScrollView
+import android.text.TextUtils
+import android.view.Gravity
+import android.graphics.Typeface
+
+
+
 class MainActivity : ComponentActivity() {
-    // Variables to add new users
+    //////////////////////////////////////////////////////////////////////////////////////////////// Variables to add new users
     data class student_Users(
         val name: String,
         val birthday: String,
@@ -27,7 +42,7 @@ class MainActivity : ComponentActivity() {
         val branch: String,
         val section: String,
         val password: String,
-        val phone: Int,
+        val phone: String,
     )
     data class teacher_Users(
         val name: String,
@@ -35,29 +50,39 @@ class MainActivity : ComponentActivity() {
         val branch: String,
         val section: String,
         val password: String,
-        val phone: Int,
+        val phone: String,
     )
     data class supervisor_Users(
         val name: String,
         val branch: String,
         val password: String,
-        val phone: Int,
+        val phone: String,
     )
     data class director_Users(
         val name: String,
         val password: String,
-        val phone: Int,
+        val phone: String,
     )
     private var newStatus: String = ""
     private var selectedGender: String = ""
 
-    // Variables to send agenda
+    //////////////////////////////////////////////////////////////////////////////////////////////// Variables to send agenda
     data class AgendaItem(
         val homeworkMsg: String = "",
         val noteMsg: String = ""
     )
-    var teacherbranch: String? = null
-    var teachersection: String? = null
+    //////////////////////////////////////////////////////////////////////////////////////////////// Variables to show data in admin
+    var adminshowStudent: Boolean = false
+    var adminshowTeacher: Boolean = false
+    var adminshowSupervisor: Boolean = false
+    var adminshowDirector: Boolean = false
+    var adminshowAdmin: Boolean = false
+
+
+
+
+
+
     private val database = FirebaseDatabase.getInstance("https://bdaass0-default-rtdb.europe-west1.firebasedatabase.app/")
     override fun onCreate(savedInstanceState: Bundle?) { ////////////////////////////////////////////  This is the first thing we do : main layout
         super.onCreate(savedInstanceState)
@@ -96,7 +121,7 @@ class MainActivity : ComponentActivity() {
         if (status == "admin") {
             checkifAdmin(table, username, password) { isAdmin ->
                 if (isAdmin) {
-                    switchToAdminLayout(username)
+                    switchToAdminShowLayout(username)
                 }
             }
         }
@@ -155,7 +180,7 @@ class MainActivity : ComponentActivity() {
             callback(isDirector)
         }
     }
-    //////////////////////////////////////////////////////////////////////////////////////////////// switch to user layout
+    //////////////////////////////////////////////////////////////////////////////////////////////// switch to users layout
     ////////////////   If Supervisor
     private fun switchToSupervisorLayout(username: String) {
         setContentView(R.layout.supervisor_layout)
@@ -186,12 +211,66 @@ class MainActivity : ComponentActivity() {
 
     }
     ////////////////   If ADMIN
-    private fun switchToAdminLayout(username: String) {
-        setContentView(R.layout.admin_layout)
+    private fun switchToAdminShowLayout(username: String){
+        setContentView(R.layout.admin_show_layout)
+        // Add the radio br=tns
+        val radioGroup: RadioGroup = findViewById(R.id.radioGroup)
+        fun addRadioButton(text: String) {
+            val radioButton = RadioButton(this)
+            radioButton.text = text
+            radioButton.layoutParams = RadioGroup.LayoutParams(
+                RadioGroup.LayoutParams.MATCH_PARENT,
+                RadioGroup.LayoutParams.WRAP_CONTENT
+            )
+            radioGroup.addView(radioButton)
+        }
+        addRadioButton("Students")
+        addRadioButton("Teachers")
+        addRadioButton("Supervisors")
+        addRadioButton("Directors")
+        addRadioButton("Admins")
+        // Set up a listener for the RadioGroup
+        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val selectedRadioButton = findViewById<RadioButton>(checkedId)
+            val selectedUser = selectedRadioButton?.text.toString()
+            val selectedBranch: Spinner = findViewById(R.id.spinnerBranch)
+            val defaultBranchValue = selectedBranch.selectedItem.toString()
+            updateAdminshowTableUSERS(selectedUser, defaultBranchValue)
+
+            selectedBranch.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
+                    val selectedBranchValue = selectedBranch.selectedItem.toString()
+                    updateAdminshowTableUSERS(selectedUser, selectedBranchValue)
+                }
+
+                override fun onNothingSelected(parentView: AdapterView<*>?) {
+                    // Do nothing if nothing is selected (optional)
+                }
+            }
+        }
+
+
+
+
+
+
+        ///////////// Modify btn
+        val adminmodifyButton: Button = findViewById(R.id.adminmodifyBtn)
+        adminmodifyButton.setOnClickListener {
+            switchToAdminModifyLayout(username)
+        }
+        ///////////// log out btn
+        val adminlogoutButton: Button = findViewById(R.id.adminlogoutBtn)
+        adminlogoutButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+    }
+    private fun switchToAdminModifyLayout(username: String) {
+        setContentView(R.layout.admin_modify_layout)
         // Find the user type Spinner by ID : to add new user
         val typeSpinner: Spinner = findViewById(R.id.typeSpinner)
-        showToast("Get the admin layout")
-
         // Initialize the spinner with user types
         ArrayAdapter.createFromResource(
             this,
@@ -223,9 +302,10 @@ class MainActivity : ComponentActivity() {
         // Get entry Data
         val editTextName: EditText = findViewById(R.id.editTextName)
         val editTextBirthday: EditText = findViewById(R.id.editTextBirthday)
-        val editTextBranch: EditText = findViewById(R.id.editTextBranch)
+        val spinnerBranch: Spinner = findViewById(R.id.spinnerBranch)
         val editTextSection: EditText = findViewById(R.id.editTextSection)
         val spinnerGender: Spinner = findViewById(R.id.spinnerGender)
+        val editTextPhone: EditText = findViewById(R.id.editTextPhone)
         val GenderOptions = arrayOf("Male", "Female")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, GenderOptions)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -248,8 +328,9 @@ class MainActivity : ComponentActivity() {
             // Get values from EditText fields
             val newname = editTextName.text.toString()
             val newbirthday = editTextBirthday.text.toString()
-            val newbranch = editTextBranch.text.toString()
+            val newbranch = spinnerBranch.selectedItem.toString()
             val newsection = editTextSection.text.toString()
+            val newphone = editTextPhone.text.toString()
             val newgender = selectedGender
             // check if newname already exist in the newstatus table
             checkIfNameExiststoADD(database, newname, newStatus) { nameExists ->
@@ -270,10 +351,10 @@ class MainActivity : ComponentActivity() {
                         if (nextId != -1) {
                             val id = nextId.toString()
                             val user = when (newStatus) {
-                                "student" -> student_Users(newname, newbirthday, newgender, newbranch, newsection, newname, 5)
-                                "teacher" -> teacher_Users(newname, newgender, newbranch, newsection, newname, 5)
-                                "supervisor" -> supervisor_Users(newname, newbranch, newname, 5)
-                                "director", "admin" -> director_Users(newname, newname, 5)
+                                "student" -> student_Users(newname, newbirthday, newgender, newbranch, newsection, newname, newphone)
+                                "teacher" -> teacher_Users(newname, newgender, newbranch, newsection, newname, newphone)
+                                "supervisor" -> supervisor_Users(newname, newbranch, newname, newphone)
+                                "director", "admin" -> director_Users(newname, newname, newphone)
                                 else -> throw IllegalArgumentException("Invalid newStatus: $newStatus")
                             }
                             usersRef.child(id).setValue(user)
@@ -293,7 +374,7 @@ class MainActivity : ComponentActivity() {
         deleteuserBtn.setOnClickListener {
             val newname = editTextName.text.toString()
             val newbirthday = editTextBirthday.text.toString()
-            val newbranch = editTextBranch.text.toString()
+            val newbranch = spinnerBranch.selectedItem.toString()
             val newsection = editTextSection.text.toString()
             val newgender = selectedGender
             // connnect to the database
@@ -317,12 +398,10 @@ class MainActivity : ComponentActivity() {
 
         }
 
-        ///////////// log out btn
-        val adminlogoutButton: Button = findViewById(R.id.adminlogoutBtn)
+        ///////////// back btn
+        val adminlogoutButton: Button = findViewById(R.id.adminbackBtn)
         adminlogoutButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+            switchToAdminShowLayout(username)
         }
     }
     ////////////////   If Student
@@ -570,18 +649,19 @@ class MainActivity : ComponentActivity() {
     private fun setVisibilityForEditTextFields(visibility: Int) {
         val editTextName: EditText = findViewById(R.id.editTextName)
         val editTextBirthday: EditText = findViewById(R.id.editTextBirthday)
-        val editTextBranch: EditText = findViewById(R.id.editTextBranch)
+        val spinnerBranch: Spinner = findViewById(R.id.spinnerBranch)
         val editTextSection: EditText = findViewById(R.id.editTextSection)
         val spinnerGender: Spinner = findViewById(R.id.spinnerGender)
         editTextName.visibility = visibility
         spinnerGender.visibility = visibility
         editTextBirthday.visibility = visibility
-        editTextBranch.visibility = visibility
+        spinnerBranch.visibility = visibility
         editTextSection.visibility = visibility
     }
     private fun changevisibilityEdittext(newStatus: String) {
         val editTextBirthday: EditText = findViewById(R.id.editTextBirthday)
-        val editTextBranch: EditText = findViewById(R.id.editTextBranch)
+        val spinnerBranch: Spinner = findViewById(R.id.spinnerBranch)
+
         val editTextSection: EditText = findViewById(R.id.editTextSection)
         val spinnerGender: Spinner = findViewById(R.id.spinnerGender)
         when (newStatus)
@@ -598,7 +678,7 @@ class MainActivity : ComponentActivity() {
             }
             "director", "admin"-> {  // Director
                 editTextSection.visibility = View.GONE
-                editTextBranch.visibility = View.GONE
+                spinnerBranch.visibility = View.GONE
                 editTextBirthday.visibility = View.GONE
                 spinnerGender.visibility = View.GONE
             }
@@ -685,24 +765,199 @@ class MainActivity : ComponentActivity() {
                 }
             })
     }
-    /*
-    private fun displayData() {
-        databaseReference.addValueEventListener(object : ValueEventListener {
+    ////////////////////////////////////////////////////////////////////////////////////////////////   Admin show the user data
+
+    private fun updateAdminshowTableUSERS(selectedUser: String, selectedBranch : String) {
+        val scroll: ScrollView = findViewById(R.id.scrollView)
+        val linearLayout: LinearLayout = LinearLayout(this)
+        linearLayout.orientation = LinearLayout.VERTICAL
+        val tabletype = when (selectedUser) {
+            "Students" -> "student"
+            "Teachers" -> "teacher"
+            "Supervisors" -> "supervisor"
+            "Directors" -> "director"
+            "Admins" -> "admin"
+            else -> selectedUser
+        }
+
+        val horizontalScrollView = HorizontalScrollView(this@MainActivity)
+        horizontalScrollView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        val tableLayout = TableLayout(this@MainActivity)
+        tableLayout.layoutParams = TableLayout.LayoutParams(
+            TableLayout.LayoutParams.WRAP_CONTENT,
+            TableLayout.LayoutParams.WRAP_CONTENT
+        )
+
+        val studentTable = database.getReference(tabletype)
+        studentTable.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                // Assuming a simple text value is stored in the database
-                val data = snapshot.getValue(String::class.java)
+                tableLayout.removeAllViews() // Clear existing views
 
-                // Display the data in the TextView
-                textView.text = data ?: "No data available"
+                // Add titles
+                val row = TableRow(this@MainActivity)
+                val cardView = CardView(this@MainActivity)
+                val innerLayout = LinearLayout(this@MainActivity)
+                var titles: Array<String>
+                var titlessizes: IntArray
+                val ID_size : Int = 150
+                val name_size : Int = 600
+                val Branch_size : Int = 300
+                val section_size : Int = 300
+                val Phone_size : Int = 300
+                val Gender_size : Int = 200
+                val Birth_size : Int = 250
+
+                when (tabletype) {
+                    "teacher" -> {
+                        titles = arrayOf("ID", "Name", "Branch", "Section", "Phone", "Gender")
+                        titlessizes = intArrayOf(ID_size, name_size, Branch_size, section_size, Phone_size, Gender_size)
+                    }
+                    "supervisor" -> {
+                        titles = arrayOf("ID", "Name", "Branch", "Phone", "Gender")
+                        titlessizes = intArrayOf(ID_size, name_size, Branch_size, Phone_size, Gender_size)
+                    }
+                    "director", "admin" -> {
+                        titles = arrayOf("ID", "Name","Phone")
+                        titlessizes = intArrayOf(ID_size, name_size,  Phone_size )
+                    }
+                    else -> {
+                        titles = arrayOf("ID", "Name", "Branch", "Section", "Phone", "Gender", "Birthday")
+                        titlessizes = intArrayOf(ID_size, name_size, Branch_size, section_size, Phone_size, Gender_size, Birth_size)
+                    }
+                }
+
+                for (i in titles.indices) {
+
+                    val textView = TextView(this@MainActivity)
+                    textView.text = titles[i]
+                    textView.setTypeface(null, Typeface.BOLD)
+                    textView.ellipsize = TextUtils.TruncateAt.END
+                    textView.layoutParams = LinearLayout.LayoutParams(
+                        titlessizes[i],
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    innerLayout.addView(textView)
+                }
+
+                cardView.addView(innerLayout)
+                row.addView(cardView)
+                tableLayout.addView(row)
+
+                // Add underline after each row
+                val rowUnderline = View(this@MainActivity)
+                rowUnderline.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    2
+                )
+                rowUnderline.setBackgroundColor(Color.BLACK)
+                tableLayout.addView(rowUnderline)
+
+                // Add student data rows
+
+                for (studentSnapshot in snapshot.children) {
+                    val Id = studentSnapshot.key
+                    val Data = studentSnapshot.getValue() as? Map<*, *>?
+                    if (Data != null) {
+                        val branch = Data["branch"]
+                        //if (branch == selectedBranch || selectedBranch == "all branches") {
+                        if (branch == selectedBranch || selectedBranch == "all branches") {
+
+                                val row = TableRow(this@MainActivity)
+                                val cardView = CardView(this@MainActivity)
+                                val innerLayout = LinearLayout(this@MainActivity)
+
+                                // ID
+                                val idTextView = TextView(this@MainActivity)
+                                idTextView.text = "$Id"
+                                idTextView.layoutParams = LinearLayout.LayoutParams(
+                                    150,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                )
+                                innerLayout.addView(idTextView)
+
+                                var columnsinformation = arrayOf(
+                                    Data["name"],
+                                    Data["branch"],
+                                    Data["section"],
+                                    Data["phone"],
+                                    Data["gender"],
+                                    Data["birth"]
+                                )
+                                when (tabletype) {
+                                    "teacher" -> {
+                                        columnsinformation = arrayOf(
+                                            Data["name"],
+                                            Data["branch"],
+                                            Data["section"],
+                                            Data["phone"],
+                                            Data["gender"]
+                                        )
+                                    }
+
+                                    "supervisor" -> {
+                                        columnsinformation =
+                                            arrayOf(Data["name"], Data["branch"], Data["phone"])
+                                    }
+
+                                    "director", "admin" -> {
+                                        columnsinformation = arrayOf(Data["name"], Data["phone"])
+                                    }
+
+                                    else -> {
+                                        columnsinformation = arrayOf(
+                                            Data["name"],
+                                            Data["branch"],
+                                            Data["section"],
+                                            Data["phone"],
+                                            Data["gender"],
+                                            Data["birthday"]
+                                        )
+                                    }
+                                }
+                                for (i in columnsinformation.indices) {
+                                    val textView = TextView(this@MainActivity)
+                                    textView.text = columnsinformation[i].toString()
+                                    textView.ellipsize = TextUtils.TruncateAt.END
+                                    textView.layoutParams = LinearLayout.LayoutParams(
+                                        titlessizes[i + 1],
+                                        LinearLayout.LayoutParams.WRAP_CONTENT
+                                    )
+                                    innerLayout.addView(textView)
+                                }
+
+                                cardView.addView(innerLayout)
+                                row.addView(cardView)
+                                tableLayout.addView(row)
+
+                                // Add underline after each row
+                                val rowUnderline = View(this@MainActivity)
+                                rowUnderline.layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                                    2
+                                )
+                                rowUnderline.setBackgroundColor(Color.BLACK)
+                                tableLayout.addView(rowUnderline)
+                            }
+                        }
+
+                }
+
+                horizontalScrollView.addView(tableLayout)
+
+                // Update the ScrollView with the new content
+                scroll.removeAllViews()
+                scroll.addView(horizontalScrollView)
             }
-
             override fun onCancelled(error: DatabaseError) {
-                // Handle error
+                // Handle errors if needed
             }
         })
-    }
 
-     */
+
+
+    }
 }
 
 
