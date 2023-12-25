@@ -71,18 +71,6 @@ class MainActivity : ComponentActivity() {
         val homeworkMsg: String = "",
         val noteMsg: String = ""
     )
-    //////////////////////////////////////////////////////////////////////////////////////////////// Variables to show data in admin
-    var adminshowStudent: Boolean = false
-    var adminshowTeacher: Boolean = false
-    var adminshowSupervisor: Boolean = false
-    var adminshowDirector: Boolean = false
-    var adminshowAdmin: Boolean = false
-
-
-
-
-
-
     private val database = FirebaseDatabase.getInstance("https://bdaass0-default-rtdb.europe-west1.firebasedatabase.app/")
     override fun onCreate(savedInstanceState: Bundle?) { ////////////////////////////////////////////  This is the first thing we do : main layout
         super.onCreate(savedInstanceState)
@@ -766,7 +754,6 @@ class MainActivity : ComponentActivity() {
             })
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////   Admin show the user data
-
     private fun updateAdminshowTableUSERS(selectedUser: String, selectedBranch : String) {
         val scroll: ScrollView = findViewById(R.id.scrollView)
         val linearLayout: LinearLayout = LinearLayout(this)
@@ -779,7 +766,6 @@ class MainActivity : ComponentActivity() {
             "Admins" -> "admin"
             else -> selectedUser
         }
-
         val horizontalScrollView = HorizontalScrollView(this@MainActivity)
         horizontalScrollView.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -789,25 +775,23 @@ class MainActivity : ComponentActivity() {
             TableLayout.LayoutParams.WRAP_CONTENT,
             TableLayout.LayoutParams.WRAP_CONTENT
         )
-
         val studentTable = database.getReference(tabletype)
         studentTable.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 tableLayout.removeAllViews() // Clear existing views
-
-                // Add titles
+                //////////////////////////////////////////////////////////////////////////////////// Add titles
                 val row = TableRow(this@MainActivity)
                 val cardView = CardView(this@MainActivity)
                 val innerLayout = LinearLayout(this@MainActivity)
                 var titles: Array<String>
                 var titlessizes: IntArray
-                val ID_size : Int = 150
-                val name_size : Int = 600
-                val Branch_size : Int = 300
-                val section_size : Int = 300
-                val Phone_size : Int = 300
-                val Gender_size : Int = 200
-                val Birth_size : Int = 250
+                val ID_size  = 100
+                val name_size = 400
+                val Branch_size = 300
+                val section_size = 300
+                val Phone_size = 300
+                val Gender_size = 200
+                val Birth_size = 250
 
                 when (tabletype) {
                     "teacher" -> {
@@ -815,8 +799,8 @@ class MainActivity : ComponentActivity() {
                         titlessizes = intArrayOf(ID_size, name_size, Branch_size, section_size, Phone_size, Gender_size)
                     }
                     "supervisor" -> {
-                        titles = arrayOf("ID", "Name", "Branch", "Phone", "Gender")
-                        titlessizes = intArrayOf(ID_size, name_size, Branch_size, Phone_size, Gender_size)
+                        titles = arrayOf("ID", "Name", "Branch", "Phone")
+                        titlessizes = intArrayOf(ID_size, name_size, Branch_size, Phone_size)
                     }
                     "director", "admin" -> {
                         titles = arrayOf("ID", "Name","Phone")
@@ -829,8 +813,8 @@ class MainActivity : ComponentActivity() {
                 }
 
                 for (i in titles.indices) {
-
                     val textView = TextView(this@MainActivity)
+                    innerLayout.gravity = Gravity.END
                     textView.text = titles[i]
                     textView.setTypeface(null, Typeface.BOLD)
                     textView.ellipsize = TextUtils.TruncateAt.END
@@ -838,7 +822,8 @@ class MainActivity : ComponentActivity() {
                         titlessizes[i],
                         LinearLayout.LayoutParams.WRAP_CONTENT
                     )
-                    innerLayout.addView(textView)
+                    textView.textDirection = View.TEXT_DIRECTION_RTL
+                    innerLayout.addView(textView, 0)
                 }
 
                 cardView.addView(innerLayout)
@@ -854,66 +839,40 @@ class MainActivity : ComponentActivity() {
                 rowUnderline.setBackgroundColor(Color.BLACK)
                 tableLayout.addView(rowUnderline)
 
-                // Add student data rows
-
-                for (studentSnapshot in snapshot.children) {
-                    val Id = studentSnapshot.key
-                    val Data = studentSnapshot.getValue() as? Map<*, *>?
+                ///////////////////////////////////////////////////////////////////////////////////// Add data rows
+                for (userSnapshot in snapshot.children) {
+                    val Id = userSnapshot.key
+                    val Data = userSnapshot.getValue() as? Map<*, *>?
                     if (Data != null) {
                         val branch = Data["branch"]
-                        //if (branch == selectedBranch || selectedBranch == "all branches") {
-                        if (branch == selectedBranch || selectedBranch == "all branches") {
-
+                        if (branch == selectedBranch || selectedBranch == "all branches" || tabletype == "director" || tabletype == "admin") {
                                 val row = TableRow(this@MainActivity)
                                 val cardView = CardView(this@MainActivity)
                                 val innerLayout = LinearLayout(this@MainActivity)
-
                                 // ID
                                 val idTextView = TextView(this@MainActivity)
                                 idTextView.text = "$Id"
                                 idTextView.layoutParams = LinearLayout.LayoutParams(
-                                    150,
+                                    ID_size,
                                     LinearLayout.LayoutParams.WRAP_CONTENT
                                 )
-                                innerLayout.addView(idTextView)
+                            idTextView.textDirection = View.TEXT_DIRECTION_RTL // arabic direction
 
-                                var columnsinformation = arrayOf(
-                                    Data["name"],
-                                    Data["branch"],
-                                    Data["section"],
-                                    Data["phone"],
-                                    Data["gender"],
-                                    Data["birth"]
-                                )
+                            innerLayout.addView(idTextView, 0)
+
+                                var columnsinformation = arrayOf(Data["name"],Data["branch"],Data["section"],Data["phone"],Data["gender"], Data["birth"])
                                 when (tabletype) {
                                     "teacher" -> {
-                                        columnsinformation = arrayOf(
-                                            Data["name"],
-                                            Data["branch"],
-                                            Data["section"],
-                                            Data["phone"],
-                                            Data["gender"]
-                                        )
+                                        columnsinformation = arrayOf(Data["name"],Data["branch"],Data["section"],Data["phone"],Data["gender"])
                                     }
-
                                     "supervisor" -> {
-                                        columnsinformation =
-                                            arrayOf(Data["name"], Data["branch"], Data["phone"])
+                                        columnsinformation = arrayOf(Data["name"], Data["branch"], Data["phone"])
                                     }
-
                                     "director", "admin" -> {
                                         columnsinformation = arrayOf(Data["name"], Data["phone"])
                                     }
-
                                     else -> {
-                                        columnsinformation = arrayOf(
-                                            Data["name"],
-                                            Data["branch"],
-                                            Data["section"],
-                                            Data["phone"],
-                                            Data["gender"],
-                                            Data["birthday"]
-                                        )
+                                        columnsinformation = arrayOf(Data["name"],Data["branch"],Data["section"],Data["phone"],Data["gender"], Data["birthday"])
                                     }
                                 }
                                 for (i in columnsinformation.indices) {
@@ -924,7 +883,8 @@ class MainActivity : ComponentActivity() {
                                         titlessizes[i + 1],
                                         LinearLayout.LayoutParams.WRAP_CONTENT
                                     )
-                                    innerLayout.addView(textView)
+                                    textView.textDirection = View.TEXT_DIRECTION_RTL // arabic direction
+                                    innerLayout.addView(textView, 0)
                                 }
 
                                 cardView.addView(innerLayout)
@@ -943,15 +903,18 @@ class MainActivity : ComponentActivity() {
                         }
 
                 }
-
+                // to arabic direction
                 horizontalScrollView.addView(tableLayout)
+                horizontalScrollView.post {
+                    horizontalScrollView.scrollTo(2000, 0)
+                }
+
 
                 // Update the ScrollView with the new content
                 scroll.removeAllViews()
                 scroll.addView(horizontalScrollView)
             }
             override fun onCancelled(error: DatabaseError) {
-                // Handle errors if needed
             }
         })
 
