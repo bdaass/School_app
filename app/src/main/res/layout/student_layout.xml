@@ -59,16 +59,6 @@
     </LinearLayout>
 
     <!-- Part 2: Green Background TextView -->
-    <TextView
-        android:id="@+id/student_nextappointment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="#00FF00"
-        android:textColor="#000000"
-        android:padding="8dp"
-        android:text="Next appointment"/>
 
     <!-- Part 3: Button -->
     <Button
@@ -119,13 +109,6 @@
         android:orientation="horizontal"
         android:gravity="bottom"
         android:layout_marginTop="16dp">
-
-        <Button
-            android:id="@+id/student_backButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Back"/>
 
         <Space
             android:layout_width="0dp"
